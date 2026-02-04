@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShieldAlert, Users, Gavel, Laptop, Zap, MapPin, Eye, MessageSquare, Video } from 'lucide-react';
+import { useMagneticRepulsion } from '../hooks/useMagneticRepulsion';
 
 const rules = [
     { icon: <ShieldAlert />, title: "Identification", desc: "Valid student ID is mandatory. Selected teams must submit Bonafide certificate." },
@@ -15,6 +16,8 @@ const rules = [
 ];
 
 const Rules = () => {
+    const { ref: magneticRef, style: magneticStyle, onMouseMove, onMouseLeave } = useMagneticRepulsion(30);
+
     return (
         <section id="rules" className="py-20 bg-neutral-900 border-t border-gray-800">
             <div className="container mx-auto px-6">
@@ -22,7 +25,13 @@ const Rules = () => {
                     RULES & <span className="text-pennywise-red">GUIDELINES</span>
                 </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <motion.div
+                    ref={magneticRef}
+                    style={magneticStyle}
+                    onMouseMove={onMouseMove}
+                    onMouseLeave={onMouseLeave}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-float-void-delayed deadlights-glow p-6 rounded-2xl"
+                >
                     {rules.map((rule, index) => (
                         <motion.div
                             key={index}
@@ -31,14 +40,14 @@ const Rules = () => {
                             transition={{ delay: index * 0.1, duration: 0.4 }}
                             className="bg-black p-6 rounded-lg border border-gray-800 hover:border-pennywise-red transition-all duration-300 group hover:-translate-y-2"
                         >
-                            <div className="text-pennywise-red mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <motion.div className="text-pennywise-red mb-4 group-hover:scale-110 transition-transform duration-300">
                                 {React.cloneElement(rule.icon, { size: 32 })}
-                            </div>
+                            </motion.div>
                             <h3 className="text-xl font-courier font-bold text-white mb-2">{rule.title}</h3>
                             <p className="text-gray-400 font-courier text-sm">{rule.desc}</p>
                         </motion.div>
                     ))}
-                </div>
+                </motion.div>
 
                 <div className="mt-12 text-center">
                     <p className="text-pennywise-red font-nosifer text-xl animate-pulse">
@@ -46,7 +55,7 @@ const Rules = () => {
                     </p>
                 </div>
             </div>
-        </section>
+        </section >
     );
 };
 

@@ -1,13 +1,23 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useMagneticRepulsion } from '../hooks/useMagneticRepulsion';
 
 const About = () => {
+    // Anti-Gravity Hook
+    const { ref: magneticRef, style: magneticStyle, onMouseMove, onMouseLeave } = useMagneticRepulsion(40);
+
     return (
         <section id="about" className="py-24 bg-black relative overflow-hidden">
             {/* Background Splatters */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-pennywise-red/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
 
-            <div className="container mx-auto px-6">
+            <motion.div
+                ref={magneticRef}
+                style={magneticStyle}
+                onMouseMove={onMouseMove}
+                onMouseLeave={onMouseLeave}
+                className="container mx-auto px-6 animate-float-void deadlights-glow p-8 rounded-2xl"
+            >
                 <motion.div
                     initial={{ opacity: 0, y: 100 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +66,7 @@ const About = () => {
                         </div>
                     </div>
                 </motion.div>
-            </div>
+            </motion.div>
         </section>
     );
 };

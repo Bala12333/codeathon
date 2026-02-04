@@ -1,14 +1,18 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { useMagneticRepulsion } from '../hooks/useMagneticRepulsion';
 
 const Hero = () => {
   const { scrollY } = useScroll();
   const y1 = useTransform(scrollY, [0, 500], [0, 200]);
   const y2 = useTransform(scrollY, [0, 500], [0, -150]);
 
+  // Anti-Gravity Hook
+  const { ref: magneticRef, style: magneticStyle, onMouseMove, onMouseLeave } = useMagneticRepulsion(60);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isEating, setIsEating] = useState(false);
+  const [isBoat, setIsBoat] = useState(false);
 
   // Preloader Logic
   useEffect(() => {
@@ -45,12 +49,21 @@ const Hero = () => {
   }, [timeLeft]);
 
   const handleRegister = () => {
-    setIsEating(true);
-    // Simulate navigation after animation
+    // 1. Morph to Boat
+    setIsBoat(true);
+
+    // 2. Boat Sails (Wait for animation)
     setTimeout(() => {
-      window.location.href = "#register-form";
-      setIsEating(false);
-    }, 2000);
+      // 3. Eating Phase (Mouth Begins Opening)
+      setIsEating(true);
+
+      // 4. Navigate (After mouth is fully open/consumed)
+      setTimeout(() => {
+        window.location.href = "#register-form";
+        setIsEating(false);
+        setIsBoat(false);
+      }, 4000); // 4 seconds for slow cinematic mouth open
+    }, 2500);
   };
 
   return (
@@ -65,13 +78,13 @@ const Hero = () => {
             transition={{ duration: 1 }}
             className="fixed inset-0 z-[100] bg-black flex items-center justify-center"
           >
-            {/* Reliable IMG tag instead of CSS background */}
+            {/* User Provided GIF - object-contain prevents cropping */}
             <img
-              src="https://media.tenor.com/uHBcnGLtTlcAAAAC/it-pennywise.gif"
+              src="/pennywise_smile.gif"
               alt="Pennywise Smile"
-              className="absolute inset-0 w-full h-full object-cover filter brightness-110 contrast-125"
+              className="absolute inset-0 w-full h-full object-contain"
             />
-            <div className="absolute inset-0 bg-black/20"></div>
+            <div className="absolute inset-0 bg-black/10"></div>
             <motion.h2
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -92,8 +105,16 @@ const Hero = () => {
       {/* Fog/Smoke Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-black z-10" />
 
-      {/* Main Content */}
-      <div className="relative z-20 text-center px-4 w-full max-w-6xl">
+      {/* Main Content with Anti-Gravity & Boat Morph */}
+      <motion.div
+        ref={magneticRef}
+        style={magneticStyle}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        animate={isBoat ? { scale: 0, opacity: 0, rotate: 720 } : { scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ duration: 1.5, ease: "anticipate" }}
+        className="relative z-20 text-center px-4 w-full max-w-6xl animate-float-void p-10 rounded-xl"
+      >
 
         {/* Department Info */}
         <motion.div
@@ -168,7 +189,7 @@ const Hero = () => {
           <span className="relative z-10">REGISTER NOW</span>
           <div className="absolute inset-0 bg-black/20 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-300"></div>
         </motion.button>
-      </div>
+      </motion.div>
 
       {/* Floating Elements (Balloons) */}
       <motion.div
@@ -180,6 +201,21 @@ const Hero = () => {
         <div className="w-0.5 h-24 bg-gray-600 mx-auto mt-[-5px]"></div>
       </motion.div>
 
+      {/* 3. PAPER BOAT ANIMATION */}
+      <AnimatePresence>
+        {isBoat && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0, y: 100 }}
+            animate={{ opacity: 1, scale: 1, y: 0, x: [0, 50, -50, 100], rotate: [0, 5, -5, 10] }}
+            exit={{ opacity: 0, scale: 0 }}
+            transition={{ duration: 3, ease: "easeInOut" }}
+            className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+          >
+            <img src="/paper_boat.png" alt="Paper Boat" className="w-64 md:w-96 max-w-[80vw] drop-shadow-[0_0_50px_rgba(255,255,255,0.2)]" />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* 2. MOUTH EATING SCREEN TRANSITION (Updated Asset) */}
       <AnimatePresence>
         {isEating && (
@@ -190,16 +226,19 @@ const Hero = () => {
             transition={{ duration: 0.8, ease: "anticipate" }}
             className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
           >
-            {/* Using the user's specific GIF (converted to .gif from .gifv typically logic) */}
-            <img
-              src="https://64.media.tumblr.com/a99ff45772906b6d9be9041c0b7fcdff/tumblr_p2eviejJlc1rtecnto5_540.gif"
+            {/* Cinematic Slow Mouth Open (Zoom Effect) */}
+            <motion.img
+              src="/pennywise_mouth_static.png"
               alt="Consuming"
-              className="w-full h-full object-cover min-w-full min-h-full"
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 8, opacity: 1 }} // Scale huge to consume viewer
+              transition={{ duration: 4, ease: "easeIn" }}
+              className="w-full h-full object-cover"
             />
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </div >
   );
 };
 
